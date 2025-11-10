@@ -28,6 +28,11 @@ public class PlayerController : MonoBehaviour
         rigidbody = GetComponent<Rigidbody>();
     }
 
+    private void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+    }
+
     private void Update()
     {
         
@@ -43,7 +48,7 @@ public class PlayerController : MonoBehaviour
         CameraLook();
     }
 
-    private void OnMoveInput(InputAction.CallbackContext context)
+    public void OnMoveInput(InputAction.CallbackContext context)
     {
         if (context.phase == InputActionPhase.Performed)
         {
@@ -55,7 +60,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnJump(InputAction.CallbackContext context)
+    public void OnJump(InputAction.CallbackContext context)
     {
         if (context.phase == InputActionPhase.Started && IsGrounded())
         {
@@ -63,7 +68,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnLook(InputAction.CallbackContext context)
+    public void OnLook(InputAction.CallbackContext context)
     {
         mouseDelta = context.ReadValue<Vector2>();
     }
@@ -99,6 +104,7 @@ public class PlayerController : MonoBehaviour
         {
             if (Physics.Raycast(rays[i], rayLength, groundLayerMask))
             {
+                Debug.Log("¶¥ °¨Áö");
                 return true;
             }
         }
