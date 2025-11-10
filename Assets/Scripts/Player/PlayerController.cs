@@ -7,6 +7,9 @@ using static UnityEngine.UI.Image;
 public class PlayerController : MonoBehaviour
 {
     public float moveSpeed;
+    public float defaultSpeed = 5;
+    public float runSpeed = 10;
+    public float staminaCostRun = 1;
     public float jumpForce;
 
     public LayerMask groundLayerMask;
@@ -22,6 +25,7 @@ public class PlayerController : MonoBehaviour
     public float lookSensitivity;
 
     private Rigidbody rigidbody;
+    private bool isRun = false;
 
     private void Awake()
     {
@@ -31,11 +35,15 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
+        moveSpeed = defaultSpeed;
     }
 
     private void Update()
     {
-        
+        if (isRun && curMovementInput.magnitude > 0)
+        {
+            CharacterManager.Instance.Player.status.ReduceStamina(staminaCostRun * Time.deltaTime);
+        }
     }
 
     private void FixedUpdate()
@@ -71,6 +79,28 @@ public class PlayerController : MonoBehaviour
     public void OnLook(InputAction.CallbackContext context)
     {
         mouseDelta = context.ReadValue<Vector2>();
+    }
+
+    public void OnRun(InputAction.CallbackContext context)
+    {
+        if (context.phase == InputActionPhase.Performed)
+        {
+            if (CharacterManager.Instance.Player.status.stamina > 0)
+            {
+                moveSpeed = runSpeed;
+                isRun = true;
+            }
+            else
+            {
+                moveSpeed = defaultSpeed;
+                isRun = false;
+            }
+        }
+        else if (context.phase == InputActionPhase.Canceled)
+        {
+            moveSpeed = defaultSpeed;
+            isRun = false;
+        }
     }
 
     private void Move()
