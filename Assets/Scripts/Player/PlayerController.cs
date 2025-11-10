@@ -85,7 +85,7 @@ public class PlayerController : MonoBehaviour
     {
         if (context.phase == InputActionPhase.Performed)
         {
-            if (CharacterManager.Instance.Player.status.stamina > 0)
+            if (CharacterManager.Instance.Player.status.curStamina > 0)
             {
                 moveSpeed = runSpeed;
                 isRun = true;

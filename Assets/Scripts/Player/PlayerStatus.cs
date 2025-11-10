@@ -6,13 +6,13 @@ public class PlayerStatus : MonoBehaviour
 {
     public float maxHp = 100;
     public float maxStamina = 100;
-    [SerializeField] private float health;
-    public float stamina;
+    public float curHealth;
+    public float curStamina;
 
     void Start()
     {
-        health = maxHp;
-        stamina = maxStamina;
+        curHealth = maxHp;
+        curStamina = maxStamina;
     }
 
     void Update()
@@ -22,26 +22,36 @@ public class PlayerStatus : MonoBehaviour
 
     public void AddHp(float value)
     {
-        health += value;
-        health = Mathf.Min(health, maxHp);
+        curHealth += value;
+        curHealth = Mathf.Min(curHealth, maxHp);
     }
 
     public void ReduceHp(float value)
     {
-        health -= value;
-        health = Mathf.Max(health, 0);
+        curHealth -= value;
+        curHealth = Mathf.Max(curHealth, 0);
     }
 
     public void AddStamina(float value)
     {
-        stamina += value;
-        stamina = Mathf.Min(stamina, maxStamina);
+        curStamina += value;
+        curStamina = Mathf.Min(curStamina, maxStamina);
     }
 
     public void ReduceStamina(float value)
     {
-        stamina -= value;
-        stamina = Mathf.Max(stamina, 0);
-        Debug.Log($"스태미나 감소 -> {stamina}");
+        curStamina -= value;
+        curStamina = Mathf.Max(curStamina, 0);
+        Debug.Log($"스태미나 감소 -> {curStamina}");
+    }
+
+    public float GetPercentageHp()
+    {
+        return curHealth / maxHp;
+    }
+
+    public float GetPercentageStamina()
+    {
+        return curStamina / maxStamina;
     }
 }
