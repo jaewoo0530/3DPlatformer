@@ -10,7 +10,16 @@ public class PlayerController : MonoBehaviour
     public float jumpForce;
 
     public LayerMask groundLayerMask;
+    private Vector2 curMovementInput;
+    private Vector2 mouseDelta;
     public float rayLength;
+
+    [Header("Look")]
+    public Transform cameraContainer;
+    public float minXLook;
+    public float maxXLook;
+    private float camCurXRot;
+    public float lookSensitivity;
 
     private Rigidbody rigidbody;
 
@@ -26,7 +35,24 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        
+        Move();
+    }
+
+    private void LateUpdate()
+    {
+        CameraLook();
+    }
+
+    private void OnMoveInput(InputAction.CallbackContext context)
+    {
+        if (context.phase == InputActionPhase.Performed)
+        {
+            curMovementInput = context.ReadValue<Vector2>();
+        }
+        else if (context.phase == InputActionPhase.Canceled)
+        {
+            curMovementInput = Vector2.zero;
+        }
     }
 
     private void OnJump(InputAction.CallbackContext context)
@@ -35,6 +61,28 @@ public class PlayerController : MonoBehaviour
         {
             rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
+    }
+
+    private void OnLook(InputAction.CallbackContext context)
+    {
+        mouseDelta = context.ReadValue<Vector2>();
+    }
+
+    private void Move()
+    {
+        Vector3 dir = transform.right * curMovementInput.x + transform.forward * curMovementInput.y;
+        dir *= moveSpeed;
+        dir.y = rigidbody.velocity.y;
+        rigidbody.velocity = dir;
+    }
+
+    private void CameraLook()
+    {
+        camCurXRot += mouseDelta.y * lookSensitivity;
+        camCurXRot = Mathf.Clamp(camCurXRot, minXLook, maxXLook);
+        cameraContainer.localEulerAngles = new Vector3(-camCurXRot, 0, 0);
+
+        transform.eulerAngles += new Vector3(0, mouseDelta.x * lookSensitivity, 0);
     }
 
     private bool IsGrounded()
