@@ -6,15 +6,18 @@ using static UnityEngine.UI.Image;
 
 public class PlayerController : MonoBehaviour
 {
+    [Header("Move")]
     public float moveSpeed;
     public float defaultSpeed = 5;
     public float runSpeed = 10;
     public float staminaCostRun = 1;
     public float jumpForce;
 
-    public LayerMask groundLayerMask;
     private Vector2 curMovementInput;
     private Vector2 mouseDelta;
+
+    [Header("¶¥ °¨Áö")]
+    public LayerMask groundLayerMask;
     public float rayLength;
 
     [Header("Look")]
@@ -24,8 +27,11 @@ public class PlayerController : MonoBehaviour
     private float camCurXRot;
     public float lookSensitivity;
 
-    public Rigidbody rigidbody;
+    [HideInInspector] public Rigidbody rigidbody;
+    [HideInInspector] public bool isDoubleJump = false;
+
     private bool isRun = false;
+    
 
     private void Awake()
     {
@@ -70,9 +76,17 @@ public class PlayerController : MonoBehaviour
 
     public void OnJump(InputAction.CallbackContext context)
     {
-        if (context.phase == InputActionPhase.Started && IsGrounded())
+        if (context.phase == InputActionPhase.Started)
         {
-            rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            if (IsGrounded())
+            {
+                rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            }
+            else if (isDoubleJump)
+            {
+                rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+                isDoubleJump = false;
+            }
         }
     }
 

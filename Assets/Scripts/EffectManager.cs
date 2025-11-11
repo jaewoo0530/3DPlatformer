@@ -17,6 +17,8 @@ public class EffectManager : MonoBehaviour
         }
     }
 
+    PlayerController controller;
+
     private void Awake()
     {
         if (_instance == null)
@@ -40,9 +42,23 @@ public class EffectManager : MonoBehaviour
 
     private IEnumerator SpeedBuffRoutine(float value, float duration)
     {
-        PlayerController controller = CharacterManager.Instance.Player.controller;
+        if (controller == null)
+        {
+            controller = CharacterManager.Instance.Player.controller;
+        }
+
         controller.moveSpeed = value;
         yield return new WaitForSeconds(duration);
         controller.moveSpeed = controller.defaultSpeed;
+    }
+
+    public void ApplyDoubleJump()
+    {
+        if (controller == null)
+        {
+            controller = CharacterManager.Instance.Player.controller;
+        }
+
+        controller.isDoubleJump = true;
     }
 }
