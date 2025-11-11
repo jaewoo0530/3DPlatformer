@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff18fe928cc4484418e8b68b6c083b09, type: 3}
   m_Name: DoubleJump
   m_EditorClassIdentifier: 
-  displayName: 
-  description: 
-  type: 0
+  displayName: DoubleJump
+  description: Double jump
+  type: 1
   equipPrefab: {fileID: 0}

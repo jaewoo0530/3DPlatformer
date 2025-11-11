@@ -15,26 +15,29 @@ public class PlayerController : MonoBehaviour
     public float wallSpeed = 3;
 
     private Vector2 curMovementInput;
-    private Vector2 mouseDelta;
 
     [Header("감지")]
     public LayerMask groundLayerMask;
     public LayerMask wallLayerMask;
+    public LayerMask ropeLayerMask;
     public float groundRayLength;
     public float wallRayLength;
 
-    [Header("Look")]
-    public Transform cameraContainer;
-    public float minXLook;
-    public float maxXLook;
-    private float camCurXRot;
-    public float lookSensitivity;
-
     [HideInInspector] public Rigidbody rigidbody;
     [HideInInspector] public bool isDoubleJump = false;
+    [HideInInspector] public PlayerState playerState;
 
-    private bool isRun = false;
-    
+    [Header("로프")]
+    public Vector3 pivot;
+    public float maxRopeLength = 3f;
+    public float ropeLength;
+    public float gravity = 9.8f;
+    public float angleMax = 45f; // 최대 각도
+    private float angle;         // 현재 각도
+    private float angularVelocity; // 각속도
+    private bool isRope;
+
+    private Camera camera;
 
     private void Awake()
     {
@@ -45,11 +48,13 @@ public class PlayerController : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         moveSpeed = defaultSpeed;
+        angle = angleMax * Mathf.Deg2Rad;
+        camera = Camera.main;
     }
 
     private void Update()
     {
-        if (isRun && curMovementInput.magnitude > 0)
+        if (playerState == PlayerState.Run && curMovementInput.magnitude > 0)
         {
             CharacterManager.Instance.Player.status.ReduceStamina(staminaCostRun * Time.deltaTime);
         }
@@ -61,16 +66,16 @@ public class PlayerController : MonoBehaviour
         {
             WallMove();
         }
+        else if (isRope)
+        {
+            RopeAction();
+        }
         else
         {
             Move();
         }
     }
 
-    private void LateUpdate()
-    {
-        CameraLook();
-    }
 
     public void OnMoveInput(InputAction.CallbackContext context)
     {
@@ -104,27 +109,33 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void OnLook(InputAction.CallbackContext context)
+    public void OnRun(InputAction.CallbackContext context)
     {
-        mouseDelta = context.ReadValue<Vector2>();
+        if (playerState == PlayerState.Walk)
+        {
+            if (context.phase == InputActionPhase.Started)
+            {
+                if (CharacterManager.Instance.Player.status.curStamina > 0)
+                {
+                    playerState = PlayerState.Run;
+                }
+                else
+                {
+                    playerState = PlayerState.Walk;
+                }
+            }
+            else if (context.phase == InputActionPhase.Canceled)
+            {
+                playerState = PlayerState.Walk;
+            }
+        }
     }
 
-    public void OnRun(InputAction.CallbackContext context)
+    public void OnRopeShot(InputAction.CallbackContext context)
     {
         if (context.phase == InputActionPhase.Started)
         {
-            if (CharacterManager.Instance.Player.status.curStamina > 0)
-            {
-                isRun = true;
-            }
-            else
-            {
-                isRun = false;
-            }
-        }
-        else if (context.phase == InputActionPhase.Canceled)
-        {
-            isRun = false;
+            RopeCheck();
         }
     }
 
@@ -132,11 +143,18 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 dir = transform.right * curMovementInput.x + transform.forward * curMovementInput.y;
 
-        if (isRun && CharacterManager.Instance.Player.status.curStamina > 0)
+        if (playerState == PlayerState.Run)
         {
-            moveSpeed = runSpeed;
+            if (CharacterManager.Instance.Player.status.curStamina > 0)
+            {
+                moveSpeed = runSpeed;
+            }
+            else
+            {
+                playerState = PlayerState.Walk;
+            }
         }
-        else
+        else if(playerState == PlayerState.Walk)
         {
             moveSpeed = defaultSpeed;
         }
@@ -151,15 +169,6 @@ public class PlayerController : MonoBehaviour
         Vector3 dir = transform.right * curMovementInput.x + transform.up * curMovementInput.y;
         dir *= wallSpeed;
         rigidbody.velocity = dir;
-    }
-
-    private void CameraLook()
-    {
-        camCurXRot += mouseDelta.y * lookSensitivity;
-        camCurXRot = Mathf.Clamp(camCurXRot, minXLook, maxXLook);
-        cameraContainer.localEulerAngles = new Vector3(-camCurXRot, 0, 0);
-
-        transform.eulerAngles += new Vector3(0, mouseDelta.x * lookSensitivity, 0);
     }
 
     private bool IsGrounded()
@@ -219,5 +228,38 @@ public class PlayerController : MonoBehaviour
 
         Vector3 center = transform.position + transform.up * 1.0f;
         Gizmos.DrawWireSphere(center, 0.4f);
+
+        if (camera == null) return;
+        Gizmos.color = Color.blue;
+        Gizmos.DrawLine(camera.transform.position, camera.transform.position + camera.transform.forward * maxRopeLength);
+    }
+
+    private void RopeCheck()
+    {
+        Ray ray = camera.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));
+        RaycastHit hit;
+
+        // Raycast(시작위치, 방향, out hit, 거리, 레이어마스크)
+        if (Physics.Raycast(ray, out hit, maxRopeLength, ropeLayerMask))
+        {
+            Debug.Log("로프 연결 감지");
+            isRope = true;
+            pivot = hit.point;
+            ropeLength = hit.distance;
+        }
+        else
+        {
+            isRope = false;
+        }
+    }
+
+    private void RopeAction()
+    {
+        float angularAcceleration = -(gravity / ropeLength) * Mathf.Sin(angle);
+        angularVelocity += angularAcceleration * Time.deltaTime;
+        angle += angularVelocity * Time.deltaTime;
+
+        transform.position = pivot +
+                             Quaternion.Euler(0, 0, angle * Mathf.Rad2Deg) * Vector3.down * ropeLength;
     }
 }

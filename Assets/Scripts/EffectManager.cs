@@ -17,7 +17,7 @@ public class EffectManager : MonoBehaviour
         }
     }
 
-    PlayerController controller;
+    private PlayerController controller;
 
     private void Awake()
     {
@@ -47,8 +47,11 @@ public class EffectManager : MonoBehaviour
             controller = CharacterManager.Instance.Player.controller;
         }
 
+        controller.playerState = PlayerState.SpeedUp;
+
         controller.moveSpeed = value;
         yield return new WaitForSeconds(duration);
+        controller.playerState = PlayerState.Walk;
         controller.moveSpeed = controller.defaultSpeed;
     }
 

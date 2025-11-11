@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
+public enum PlayerState
+{
+    Walk,
+    Run,
+    SpeedUp
+}
+
 public class Player : MonoBehaviour
 {
     public PlayerController controller;
