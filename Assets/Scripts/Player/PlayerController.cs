@@ -111,22 +111,19 @@ public class PlayerController : MonoBehaviour
 
     public void OnRun(InputAction.CallbackContext context)
     {
-        if (context.phase == InputActionPhase.Performed)
+        if (context.phase == InputActionPhase.Started)
         {
             if (CharacterManager.Instance.Player.status.curStamina > 0)
             {
-                moveSpeed = runSpeed;
                 isRun = true;
             }
             else
             {
-                moveSpeed = defaultSpeed;
                 isRun = false;
             }
         }
         else if (context.phase == InputActionPhase.Canceled)
         {
-            moveSpeed = defaultSpeed;
             isRun = false;
         }
     }
@@ -134,6 +131,16 @@ public class PlayerController : MonoBehaviour
     private void Move()
     {
         Vector3 dir = transform.right * curMovementInput.x + transform.forward * curMovementInput.y;
+
+        if (isRun && CharacterManager.Instance.Player.status.curStamina > 0)
+        {
+            moveSpeed = runSpeed;
+        }
+        else
+        {
+            moveSpeed = defaultSpeed;
+        }
+
         dir *= moveSpeed;
         dir.y = rigidbody.velocity.y;
         rigidbody.velocity = dir;
