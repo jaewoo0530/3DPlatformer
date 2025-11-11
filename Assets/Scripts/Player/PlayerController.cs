@@ -24,7 +24,7 @@ public class PlayerController : MonoBehaviour
     private float camCurXRot;
     public float lookSensitivity;
 
-    private Rigidbody rigidbody;
+    public Rigidbody rigidbody;
     private bool isRun = false;
 
     private void Awake()
