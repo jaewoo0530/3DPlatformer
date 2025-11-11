@@ -15,11 +15,6 @@ public class PlayerStatus : MonoBehaviour
         curStamina = maxStamina;
     }
 
-    void Update()
-    {
-        
-    }
-
     public void AddHp(float value)
     {
         curHealth += value;

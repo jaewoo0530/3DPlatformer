@@ -12,13 +12,16 @@ public class PlayerController : MonoBehaviour
     public float runSpeed = 10;
     public float staminaCostRun = 1;
     public float jumpForce;
+    public float wallSpeed = 3;
 
     private Vector2 curMovementInput;
     private Vector2 mouseDelta;
 
-    [Header("階 馬雖")]
+    [Header("馬雖")]
     public LayerMask groundLayerMask;
-    public float rayLength;
+    public LayerMask wallLayerMask;
+    public float groundRayLength;
+    public float wallRayLength;
 
     [Header("Look")]
     public Transform cameraContainer;
@@ -54,7 +57,14 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        Move();
+        if (IsWall())
+        {
+            WallMove();
+        }
+        else
+        {
+            Move();
+        }
     }
 
     private void LateUpdate()
@@ -81,6 +91,10 @@ public class PlayerController : MonoBehaviour
             if (IsGrounded())
             {
                 rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            }
+            else if (IsWall())
+            {
+                rigidbody.AddForce(-transform.forward * jumpForce, ForceMode.Impulse);
             }
             else if (isDoubleJump)
             {
@@ -125,6 +139,13 @@ public class PlayerController : MonoBehaviour
         rigidbody.velocity = dir;
     }
 
+    private void WallMove()
+    {
+        Vector3 dir = transform.right * curMovementInput.x + transform.up * curMovementInput.y;
+        dir *= wallSpeed;
+        rigidbody.velocity = dir;
+    }
+
     private void CameraLook()
     {
         camCurXRot += mouseDelta.y * lookSensitivity;
@@ -146,7 +167,7 @@ public class PlayerController : MonoBehaviour
 
         for (int i = 0; i < rays.Length; i++)
         {
-            if (Physics.Raycast(rays[i], rayLength, groundLayerMask))
+            if (Physics.Raycast(rays[i], groundRayLength, groundLayerMask))
             {
                 Debug.Log("階 馬雖");
                 return true;
@@ -156,9 +177,25 @@ public class PlayerController : MonoBehaviour
         return false;
     }
 
+    private bool IsWall()
+    {
+        float radius = 0.4f;
+        Vector3 center = transform.position + transform.up * 1.0f;
+
+        Collider[] hits = Physics.OverlapSphere(center, radius, wallLayerMask);
+
+        if (hits.Length > 0)
+        {
+            Debug.Log("漁 馬雖");
+            return true;
+        }
+
+        return false;
+    }
+
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.green;
+        Gizmos.color = Color.red;
 
         Vector3[] origins = new Vector3[4]
         {
@@ -170,7 +207,10 @@ public class PlayerController : MonoBehaviour
 
         foreach (Vector3 origin in origins)
         {
-            Gizmos.DrawLine(origin, origin + Vector3.down * rayLength);
+            Gizmos.DrawLine(origin, origin + Vector3.down * groundRayLength);
         }
+
+        Vector3 center = transform.position + transform.up * 1.0f;
+        Gizmos.DrawWireSphere(center, 0.4f);
     }
 }
