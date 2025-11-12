@@ -29,9 +29,6 @@ public class PlayerController : MonoBehaviour
     public float maxRopeLength = 3f;
     public float ropeLength;
     public float gravity = 9.8f;
-    public float angleMax = 45f; // 최대 각도
-    private float angle;         // 현재 각도
-    private float angularVelocity; // 각속도
     private bool isRope;
     private Vector3 velocity = Vector3.zero;
 
@@ -63,13 +60,13 @@ public class PlayerController : MonoBehaviour
         {
             WallMove();
         }
-        else if (IsGrounded())
-        {
-            Move();
-        }
-        else if (isRope)
+        else if (isRope && !IsGrounded())
         {
             RopeAction();
+        }
+        else
+        {
+            Move();
         }
     }
 
@@ -191,6 +188,7 @@ public class PlayerController : MonoBehaviour
             {
                 Debug.Log("땅 감지");
 
+                isRope = false;
                 return true;
             }
         }
@@ -246,12 +244,6 @@ public class PlayerController : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, maxRopeLength, ropeLayerMask))
         {
-            if (IsGrounded())
-            {
-                isRope = false;
-                return;
-            }
-
             isRope = true;
             pivot = hit.point;
             ropeLength = hit.distance;
@@ -266,14 +258,20 @@ public class PlayerController : MonoBehaviour
 
     private void RopeAction()
     {
-        Vector3 dir = transform.position - pivot;
-        dir.Normalize();
+        float curRopeLength = Vector3.Distance(transform.position, pivot);
+
+        if (curRopeLength >= maxRopeLength)
+        {
+            isRope = false;
+            return;
+        }
+        Vector3 dir = (transform.position - pivot).normalized;
 
         Vector3 acceleration = -gravity * dir;
 
-        velocity += acceleration * Time.deltaTime;
+        velocity += acceleration * Time.fixedDeltaTime;
 
-        Vector3 newPos = transform.position + velocity * Time.deltaTime;
+        Vector3 newPos = transform.position + velocity * Time.fixedDeltaTime;
 
         Vector3 offset = newPos - pivot;
         transform.position = pivot + offset.normalized * ropeLength;

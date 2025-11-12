@@ -11,7 +11,10 @@ public class PlayerCamera : MonoBehaviour
     private float camCurXRot;
     public float lookSensitivity;
     private Vector2 mouseDelta;
+    private bool isTPS;
 
+    public Vector3 fpsPosition;
+    public Vector3 tpsPosition;
 
     private void LateUpdate()
     {
@@ -32,8 +35,20 @@ public class PlayerCamera : MonoBehaviour
         transform.eulerAngles += new Vector3(0, mouseDelta.x * lookSensitivity, 0);
     }
 
-    private void OnChangeView(InputAction.CallbackContext context)
+    public void OnChangeView(InputAction.CallbackContext context)
     {
-
+        if (context.phase == InputActionPhase.Started)
+        {
+            if (!isTPS)
+            {
+                cameraContainer.localPosition = tpsPosition;
+                isTPS = true;
+            }
+            else
+            {
+                cameraContainer.localPosition = fpsPosition;
+                isTPS = false;
+            }
+        }
     }
 }
