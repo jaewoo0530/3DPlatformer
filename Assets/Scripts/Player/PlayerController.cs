@@ -33,6 +33,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 velocity = Vector3.zero;
 
     private Camera camera;
+    private LineRenderer lineRenderer;
 
     private void Awake()
     {
@@ -44,6 +45,13 @@ public class PlayerController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         moveSpeed = defaultSpeed;
         camera = Camera.main;
+
+        lineRenderer = GetComponent<LineRenderer>();
+        lineRenderer.positionCount = 2;
+        lineRenderer.startWidth = 0.05f;
+        lineRenderer.endWidth = 0.05f;
+        lineRenderer.startColor = Color.yellow;
+        lineRenderer.endColor = Color.yellow;
     }
 
     private void Update()
@@ -52,17 +60,18 @@ public class PlayerController : MonoBehaviour
         {
             CharacterManager.Instance.Player.status.ReduceStamina(staminaCostRun * Time.deltaTime);
         }
+        UpdateLineRenderer();
     }
 
     private void FixedUpdate()
     {
-        if (IsWall())
-        {
-            WallMove();
-        }
-        else if (isRope && !IsGrounded())
+        if (isRope)
         {
             RopeAction();
+        }
+        else if (IsWall())
+        {
+            WallMove();
         }
         else
         {
@@ -188,7 +197,6 @@ public class PlayerController : MonoBehaviour
             {
                 Debug.Log("땅 감지");
 
-                isRope = false;
                 return true;
             }
         }
@@ -260,11 +268,12 @@ public class PlayerController : MonoBehaviour
     {
         float curRopeLength = Vector3.Distance(transform.position, pivot);
 
-        if (curRopeLength >= maxRopeLength)
+        if (curRopeLength >= maxRopeLength || IsGrounded())
         {
             isRope = false;
             return;
         }
+
         Vector3 dir = (transform.position - pivot).normalized;
 
         Vector3 acceleration = -gravity * dir;
@@ -275,5 +284,19 @@ public class PlayerController : MonoBehaviour
 
         Vector3 offset = newPos - pivot;
         transform.position = pivot + offset.normalized * ropeLength;
+    }
+
+    private void UpdateLineRenderer()
+    {
+        if (isRope)
+        {
+            lineRenderer.enabled = true;
+            lineRenderer.SetPosition(0, pivot);          // 줄의 시작점
+            lineRenderer.SetPosition(1, transform.position); // 줄의 끝점 (플레이어)
+        }
+        else
+        {
+            lineRenderer.enabled = false;
+        }
     }
 }
