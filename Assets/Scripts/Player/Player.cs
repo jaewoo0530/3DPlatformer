@@ -21,4 +21,9 @@ public class Player : MonoBehaviour
         controller = GetComponent<PlayerController>();
         status = GetComponent<PlayerStatus>();
     }
+
+    public void Die()
+    {
+        Debug.Log("Á×À½!");
+    }
 }

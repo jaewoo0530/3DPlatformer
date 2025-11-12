@@ -25,6 +25,10 @@ public class PlayerStatus : MonoBehaviour
     {
         curHealth -= value;
         curHealth = Mathf.Max(curHealth, 0);
+        if (curHealth <= 0)
+        {
+            CharacterManager.Instance.Player.Die();
+        }
     }
 
     public void AddStamina(float value)
