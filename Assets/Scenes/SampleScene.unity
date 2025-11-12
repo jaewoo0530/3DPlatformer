@@ -1735,13 +1735,22 @@ LineRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 1
+        value: 0
         inSlope: 0
         outSlope: 0
         tangentMode: 0
         weightedMode: 0
         inWeight: 0.33333334
         outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.990566
+        value: -0.0052083335
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
@@ -5049,7 +5058,7 @@ MonoBehaviour:
   maxXLook: 65
   lookSensitivity: 0.1
   fpsPosition: {x: 0, y: 1.4, z: 0}
-  tpsPosition: {x: 0, y: 2.6, z: -1.5}
+  tpsPosition: {x: 0, y: 2.2, z: -1}
 --- !u!120 &1247411572
 LineRenderer:
   serializedVersion: 2
