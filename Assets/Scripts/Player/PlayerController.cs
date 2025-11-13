@@ -283,7 +283,7 @@ public class PlayerController : MonoBehaviour
     {
         float curRopeLength = Vector3.Distance(transform.position, pivot);
 
-        if (curRopeLength >= maxRopeLength || IsGrounded())
+        if (curRopeLength >= maxRopeLength)
         {
             isRope = false;
             return;
