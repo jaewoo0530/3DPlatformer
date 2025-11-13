@@ -23,7 +23,6 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public Rigidbody rigidbody;
     [HideInInspector] public bool isDoubleJump = false;
     [HideInInspector] public PlayerState playerState;
-    [HideInInspector] public bool isStun;
 
     [Header("ทฮวม")]
     public Vector3 pivot;
@@ -66,11 +65,6 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (isStun)
-        {
-            return;
-        }
-
         if (isRope)
         {
             RopeAction();

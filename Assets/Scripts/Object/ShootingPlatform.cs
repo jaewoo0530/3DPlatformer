@@ -25,7 +25,6 @@ public class ShootingPlatform : MonoBehaviour
     }
     private IEnumerator ShootTime(Player player)
     {
-        player.controller.isStun = true;
         Rigidbody rb = player.controller.rigidbody;
 
         rb.velocity = Vector3.zero;
@@ -34,12 +33,12 @@ public class ShootingPlatform : MonoBehaviour
         while (timer < duration)
         {
             Debug.Log("ÄÚ·çÆ¾");
-            rb.AddForce((transform.forward + Vector3.up) * forcePower * Time.fixedDeltaTime, ForceMode.Force);
+            rb.velocity = Vector3.zero;
+            rb.AddForce((transform.forward + Vector3.up) * forcePower * Time.fixedDeltaTime, ForceMode.Impulse);
             timer += Time.fixedDeltaTime;
             yield return new WaitForFixedUpdate();
         }
 
-        player.controller.isStun = false;
         coroutine = null;
     }
 }
