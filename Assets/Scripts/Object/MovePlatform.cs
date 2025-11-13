@@ -4,22 +4,39 @@ using UnityEngine;
 
 public class MovePlatform : MonoBehaviour
 {
-    [SerializeField] private float speed;
-    private Coroutine coroutine;
+    public Transform pointA;
+    public Transform pointB;
+    public float moveTime = 2f;
+    public float waitTime = 1f;
 
-    void Update()
+    private void Start()
     {
-        StartCoroutine(MoveRoutine());
+        StartCoroutine(MoveLoop());
     }
 
-    private IEnumerator MoveRoutine()
+    private IEnumerator MoveLoop()
     {
-        yield return null;
-        StartCoroutine(StopRoutine());
+        while (true)
+        {
+            yield return MoveTo(pointB.position);
+            yield return new WaitForSeconds(waitTime);
+            yield return MoveTo(pointA.position);
+            yield return new WaitForSeconds(waitTime);
+        }
     }
 
-    private IEnumerator StopRoutine()
+    private IEnumerator MoveTo(Vector3 target)
     {
-        yield return new WaitForSeconds(1f);
+        Vector3 start = transform.position;
+        float time = 0f;
+
+        while (time < moveTime)
+        {
+            transform.position = Vector3.Lerp(start, target, time / moveTime);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.position = target;
     }
 }
