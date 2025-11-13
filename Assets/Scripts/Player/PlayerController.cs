@@ -23,6 +23,7 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public Rigidbody rigidbody;
     [HideInInspector] public bool isDoubleJump = false;
     [HideInInspector] public PlayerState playerState;
+    [HideInInspector] public bool isStun;
 
     [Header("ทฮวม")]
     public Vector3 pivot;
@@ -65,6 +66,11 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (isStun)
+        {
+            return;
+        }
+
         if (isRope)
         {
             RopeAction();
@@ -124,6 +130,15 @@ public class PlayerController : MonoBehaviour
     {
         if (context.phase == InputActionPhase.Started)
         {
+            if (isRope)
+            {
+                isRope = false;
+                Vector3 vector = rigidbody.velocity;
+                vector.y = 0f;
+                rigidbody.velocity = vector;
+                rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            }
+
             RopeCheck();
         }
     }
